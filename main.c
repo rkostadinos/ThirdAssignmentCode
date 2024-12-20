@@ -57,7 +57,7 @@ void show_processed_infile(int output_from_2nd_pipe){ //gets the output from exe
     }
 }
 
-void exec_from_pipe(int input_pipe_fd, int output_pipe_fd){ //
+void exec_from_pipe(int input_pipe_fd, int output_pipe_fd){ //using dup2 to use stdout/inand to refer to the pipes and exec to use cut
     dup2(input_pipe_fd, 0);
     dup2(output_pipe_fd, 1);
 
@@ -70,20 +70,20 @@ void exec_from_pipe(int input_pipe_fd, int output_pipe_fd){ //
 
 int main(int argc, char *argv[])
 {
-    int input_fd1[2],output_fd2[2];
+    int input_fd1[2],output_fd2[2]; //initializing and declaring the pipes and their fds
     int input_pipe = pipe(input_fd1);
     int output_pipe = pipe(output_fd2);
     if (input_pipe < 0 || output_pipe < 0){
         perror("Failed to create pipes");
         exit(1);
     }
-    pid_t p = fork();
+    pid_t p = fork(); //creates a child process
     char* infile_name = argv[1];
 
 
     if (p > 0){ //parent
         int infile_fd = get_infile_fd(infile_name);
-        close(input_fd1[0]);
+        close(input_fd1[0]); //closing the pipe ends that are not needed
         read_infile_and_redirect_to_inpipe(infile_fd, input_fd1[1]);
 
         wait((int *)0);
