@@ -57,7 +57,7 @@ void show_processed_infile(int output_from_2nd_pipe){ //gets the output from exe
     }
 }
 
-void exec_from_pipe(int input_pipe_fd, int output_pipe_fd){ //using dup2 to use stdout/inand to refer to the pipes and exec to use cut
+void exec_from_pipe(int input_pipe_fd, int output_pipe_fd){ //using dup2 to use stdout/in and to refer to the pipes and exec to use cut
     dup2(input_pipe_fd, 0);
     dup2(output_pipe_fd, 1);
 
@@ -82,27 +82,27 @@ int main(int argc, char *argv[])
 
 
     if (p > 0){ //parent
-        int infile_fd = get_infile_fd(infile_name);
+        int infile_fd = get_infile_fd(infile_name); //gets the infile's fd by using its name that got obtained in line 81
         close(input_fd1[0]); //closing the pipe ends that are not needed
         read_infile_and_redirect_to_inpipe(infile_fd, input_fd1[1]);
 
         wait((int *)0);
         close(output_fd2[1]);
-        show_processed_infile(output_fd2[0]);
-    }
+        show_processed_infile(output_fd2[0]); //this function gets data from the write-end of the second pipe (the output pipe)
+    }                                         //and prints it after processing it
     else if(p == 0){ //child
         close(input_fd1[1]);
         close(output_fd2[0]);
-        exec_from_pipe(input_fd1[0], output_fd2[1]);
-
-
+        exec_from_pipe(input_fd1[0], output_fd2[1]); //the read-end of the first pipe and the write-end of the second pipe
+                                                     //get passed in the function so that the content of the infile get processed
+                                                     //and passed to the output pipe's write-end
     }
     else{ //fork error
         perror("Error creating process");
         close(infile_fd);
         exit(1);
     }
-    close(infile_fd);
+    close(infile_fd); //close the infile after the processing is complete
 
     return 0;
 }
