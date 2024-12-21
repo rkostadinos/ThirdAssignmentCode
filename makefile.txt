@@ -1,2 +1,2 @@
-helper: helper.c
+Helper: helper.c
 	gcc -o helper helper.c
