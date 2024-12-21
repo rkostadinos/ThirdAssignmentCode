@@ -41,8 +41,7 @@ void read_infile_and_redirect_to_inpipe(int Infilefd, int InputPipefd){ //this f
 
     close(Infilefd); //close the infile after the transfer is complete
     printf("Infile successfully transferred to pipe \n");
-    buffer[0] = 26;
-    write(InputPipefd, buffer, 1);
+    close(InputPipefd);
 }
 
 void show_processed_infile(int output_from_2nd_pipe){ //gets the output from exec and transforms the output to be printed based on endlines
