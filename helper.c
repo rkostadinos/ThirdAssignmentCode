@@ -40,7 +40,7 @@ void read_infile_and_redirect_to_inpipe(int Infilefd, int InputPipefd){ //this f
         perror("Reading error occurred");
         exit(1);
     }
-
+    close(infile_fd); //close the infile after the processing is complete
     printf("Infile successfully transferred to pipe \n");
 }
 void show_processed_infile(int output_from_2nd_pipe){ //gets the output from exec and transforms the output to be printed based on endlines
@@ -98,10 +98,9 @@ int main(int argc, char *argv[])
     }
     else{ //fork error
         perror("Error creating process");
-        close(infile_fd);
         exit(1);
     }
-    close(infile_fd); //close the infile after the processing is complete
+
 
     return 0;
 }
