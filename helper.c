@@ -84,7 +84,6 @@ int main(int argc, char *argv[])
 
     if (p > 0){ //branch for the parent process
         int infile_fd = get_infile_fd(infile_name); //gets the infile's fd by using its name that got obtained in line 81
-
         close(input_fd1[0]); //closing the pipe ends that are not needed
         read_infile_and_redirect_to_inpipe(infile_fd, input_fd1[1]);
 
