@@ -14,11 +14,9 @@ int get_infile_fd(char *Infilename){ //open the input file, and return a descrip
         perror("Failure to open file");
         exit(1);
     }
-
     return infile_fd;
-
-
 }
+
 void read_infile_and_redirect_to_inpipe(int Infilefd, int InputPipefd){ //this function gets the infile's content and
     char buffer[BUFFERSIZE];                                            //redirects it to the input pipe
     ssize_t read_infile = read(Infilefd, buffer, BUFFERSIZE);
@@ -44,6 +42,7 @@ void read_infile_and_redirect_to_inpipe(int Infilefd, int InputPipefd){ //this f
     close(Infilefd); //close the infile after the transfer is complete
     printf("Infile successfully transferred to pipe \n");
 }
+
 void show_processed_infile(int output_from_2nd_pipe){ //gets the output from exec and transforms the output to be printed based on endlines
     char buffer[BUFFERSIZE];
     ssize_t read_processed_infile = read(output_from_2nd_pipe, buffer, BUFFERSIZE);
@@ -63,10 +62,10 @@ void exec_from_pipe(int input_pipe_fd, int output_pipe_fd){ //using dup2 to use 
     dup2(output_pipe_fd, 1); // replace output stream
 
     char *cut_args[] = {"cut", "-c5-", NULL };
+    /**/printf("[efp] before exec...");
     execvp("cut", cut_args);
     perror("Failed to extract the intended data from the infile");
     exit(1);
-
 }
 
 int main(int argc, char *argv[])
@@ -79,20 +78,21 @@ int main(int argc, char *argv[])
         exit(1);
     }
     pid_t p = fork(); //creates a child process
-    char* infile_name = argv[1];
-
-
     if (p > 0){ //branch for the parent process
+        /**/printf("[main] branch of parent process");
+        char* infile_name = argv[1];
         int infile_fd = get_infile_fd(infile_name); //gets the infile's fd by using its name that got obtained in line 81
 
         close(input_fd1[0]); //closing the pipe ends that are not needed
         read_infile_and_redirect_to_inpipe(infile_fd, input_fd1[1]);
 
+        /**/printf("[main-parent] waiting...");
         wait((int *)0);
         close(output_fd2[1]); //closing the pipe ends that are not needed
         show_processed_infile(output_fd2[0]); //this function gets data from the write-end of the second pipe (the output pipe)
     }                                         //and prints it after processing it
     else if(p == 0){ //branch for the child process
+        /**/printf("[main] branch of child process");
         close(input_fd1[1]); //closing the pipe ends that are not needed
         close(output_fd2[0]);
         exec_from_pipe(input_fd1[0], output_fd2[1]); //the read-end of the first pipe and the write-end of the second pipe
