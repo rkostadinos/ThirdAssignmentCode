@@ -12,7 +12,7 @@ int get_infile_fd(char *Infilename){ //open the input file, and return a descrip
     int infile_fd = open(Infilename, O_RDONLY);
     if (infile_fd < 0){
         perror("Failure to open file");
-        exit(1);
+        exit(104);
     }
     return infile_fd;
 }
@@ -26,7 +26,7 @@ void read_infile_and_redirect_to_inpipe(int Infilefd, int InputPipefd){ //this f
             int write_to_input_pipe = write(InputPipefd, buffer + bytes_written, read_infile - bytes_written);
             if (write_to_input_pipe < 0){
                 perror("Writing error occurred");
-                exit(1);
+                exit(113);
             }
             else{
                 bytes_written += write_to_input_pipe;
@@ -36,7 +36,7 @@ void read_infile_and_redirect_to_inpipe(int Infilefd, int InputPipefd){ //this f
     }
     if (read_infile < 0){
         perror("Reading error occurred");
-        exit(1);
+        exit(105);
     }
 
     close(Infilefd); //close the infile after the transfer is complete
@@ -49,7 +49,7 @@ void show_processed_infile(int output_from_2nd_pipe){ //gets the output from exe
     ssize_t read_processed_infile = read(output_from_2nd_pipe, buffer, BUFFERSIZE);
     if (read_processed_infile < 0){
         perror("Reading error occurred");
-        exit(1);
+        exit(107);
     }
     buffer[read_processed_infile] = 0; // mark the end of actual data in the buffer
     char* token = strtok(buffer, "\n");
@@ -68,7 +68,7 @@ void exec_from_pipe(int input_pipe_fd, int output_pipe_fd){ //using dup2 to use 
 
     execvp("cut", cut_args);
     perror("Failed to extract the intended data from the infile");
-    exit(1);
+    exit(199);
 }
 
 int main(int argc, char *argv[])
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     int output_pipe = pipe(output_fd2);
     if (input_pipe < 0 || output_pipe < 0){
         perror("Failed to create pipes");
-        exit(1);
+        exit(101);
     }
     pid_t p = fork(); //creates a child process
     if (p > 0){ //branch for the parent process
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     }
     else{ //fork error
         perror("Error creating process");
-        exit(1);
+        exit(102);
     }
 
     return 0;
