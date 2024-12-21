@@ -41,6 +41,7 @@ void read_infile_and_redirect_to_inpipe(int Infilefd, int InputPipefd){ //this f
         exit(1);
     }
 
+    close(Infilefd); //close the infile after the transfer is complete
     printf("Infile successfully transferred to pipe \n");
 }
 void show_processed_infile(int output_from_2nd_pipe){ //gets the output from exec and transforms the output to be printed based on endlines
@@ -83,6 +84,7 @@ int main(int argc, char *argv[])
 
     if (p > 0){ //branch for the parent process
         int infile_fd = get_infile_fd(infile_name); //gets the infile's fd by using its name that got obtained in line 81
+
         close(input_fd1[0]); //closing the pipe ends that are not needed
         read_infile_and_redirect_to_inpipe(infile_fd, input_fd1[1]);
 
@@ -99,10 +101,8 @@ int main(int argc, char *argv[])
     }
     else{ //fork error
         perror("Error creating process");
-        close(infile_fd);
         exit(1);
     }
-    close(infile_fd); //close the infile after the processing is complete
 
     return 0;
 }
